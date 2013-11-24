@@ -16,14 +16,14 @@
 
 package com.commonsware.cwac.loaderex;
 
-import java.io.FileDescriptor;
-import java.io.PrintWriter;
-import java.util.Arrays;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
+import java.util.Arrays;
 
 public class SQLiteCursorLoader extends AbstractCursorLoader {
   SQLiteOpenHelper db=null;
@@ -72,31 +72,50 @@ public class SQLiteCursorLoader extends AbstractCursorLoader {
 
   public void insert(String table, String nullColumnHack,
                      ContentValues values) {
-    new InsertTask(this).execute(db, table, nullColumnHack, values);
+    buildInsertTask(this).execute(db, table, nullColumnHack, values);
   }
 
   public void update(String table, ContentValues values,
                      String whereClause, String[] whereArgs) {
-    new UpdateTask(this).execute(db, table, values, whereClause,
-                                 whereArgs);
+    buildUpdateTask(this).execute(db, table, values, whereClause,
+                                  whereArgs);
   }
 
   public void replace(String table, String nullColumnHack,
                       ContentValues values) {
-    new ReplaceTask(this).execute(db, table, nullColumnHack, values);
+    buildReplaceTask(this).execute(db, table, nullColumnHack, values);
   }
 
   public void delete(String table, String whereClause,
                      String[] whereArgs) {
-    new DeleteTask(this).execute(db, table, whereClause, whereArgs);
+    buildDeleteTask(this).execute(db, table, whereClause, whereArgs);
   }
 
   public void execSQL(String sql, Object[] bindArgs) {
-    new ExecSQLTask(this).execute(db, sql, bindArgs);
+    buildExecSQLTask(this).execute(db, sql, bindArgs);
   }
 
-  private class InsertTask extends
-      ContentChangingTask<Object, Void, Void> {
+  protected ContentChangingTask buildInsertTask(SQLiteCursorLoader loader) {
+    return(new InsertTask(loader));
+  }
+
+  protected ContentChangingTask buildUpdateTask(SQLiteCursorLoader loader) {
+    return(new UpdateTask(loader));
+  }
+
+  protected ContentChangingTask buildReplaceTask(SQLiteCursorLoader loader) {
+    return(new ReplaceTask(loader));
+  }
+
+  protected ContentChangingTask buildDeleteTask(SQLiteCursorLoader loader) {
+    return(new DeleteTask(loader));
+  }
+
+  protected ContentChangingTask buildExecSQLTask(SQLiteCursorLoader loader) {
+    return(new ExecSQLTask(loader));
+  }
+
+  protected static class InsertTask extends ContentChangingTask {
     InsertTask(SQLiteCursorLoader loader) {
       super(loader);
     }
@@ -114,8 +133,7 @@ public class SQLiteCursorLoader extends AbstractCursorLoader {
     }
   }
 
-  private class UpdateTask extends
-      ContentChangingTask<Object, Void, Void> {
+  protected static class UpdateTask extends ContentChangingTask {
     UpdateTask(SQLiteCursorLoader loader) {
       super(loader);
     }
@@ -135,8 +153,7 @@ public class SQLiteCursorLoader extends AbstractCursorLoader {
     }
   }
 
-  private class ReplaceTask extends
-      ContentChangingTask<Object, Void, Void> {
+  protected static class ReplaceTask extends ContentChangingTask {
     ReplaceTask(SQLiteCursorLoader loader) {
       super(loader);
     }
@@ -154,8 +171,7 @@ public class SQLiteCursorLoader extends AbstractCursorLoader {
     }
   }
 
-  private class DeleteTask extends
-      ContentChangingTask<Object, Void, Void> {
+  protected static class DeleteTask extends ContentChangingTask {
     DeleteTask(SQLiteCursorLoader loader) {
       super(loader);
     }
@@ -173,8 +189,7 @@ public class SQLiteCursorLoader extends AbstractCursorLoader {
     }
   }
 
-  private class ExecSQLTask extends
-      ContentChangingTask<Object, Void, Void> {
+  protected static class ExecSQLTask extends ContentChangingTask {
     ExecSQLTask(SQLiteCursorLoader loader) {
       super(loader);
     }

@@ -89,6 +89,17 @@ other sources. Just override `buildCursor()` and have it
 return the `Cursor` &mdash; this method is called on a
 background thread and therefore is not time-limited.
 
+### Doing More with the Tasks
+
+You can tailor the work that is done during the
+`insert()`, `update()`, `delete()`, `replace()`, and
+`execSQL()` methods on `SQLiteCursorLoader`. What each of those
+do is delegate to a specific `ContentChangingTask` subclass
+(`InsertTask`, `UpdateTask`, etc.). You can subclass those
+classes, or create your own, and return an instance of them
+from the corresponding `build...()` methods (e.g., `buildInsertTask()`,
+`buildUpdateTask()`).
+
 Usage: SQLite*Task
 ------------------
 **THESE CLASSES ARE DEPRECATED**
@@ -208,7 +219,7 @@ that do not work on API Level 7 and are not noted as requiring a higher version.
 
 Version
 -------
-This is version v0.7.2 of this module, meaning that its author
+This is version v0.7.3 of this module, meaning that its author
 really should consider formalizing v1.0.0 before too long...
 
 Demo
@@ -249,6 +260,7 @@ Do not ask for help via Twitter.
 
 Release Notes
 -------------
+- v0.7.3: added hooks for extending asynchronous functionality, updated to SQLCipher 3.0.0
 - v0.7.2: updated for SQLCipher 2.2.1
 - v0.7.1: bug fix
 - v0.7.0: added SQLCipher for Android support
