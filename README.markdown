@@ -182,7 +182,7 @@ Usage: SharedPreferencesLoader
 ------------------------------
 **WARNING**: `SharedPreferencesLoader` is deprecated. Changes in the implementation
 of the loader framework mean that `SharedPreferencesLoader` can no longer fulfill
-the `Loader` contrat.
+the `Loader` contract.
 
 `SharedPreferencesLoader` largely mirrors `SQLiteCursorLoader`:
 
