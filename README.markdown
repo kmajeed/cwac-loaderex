@@ -19,9 +19,6 @@ database inserts and deletes in the background. It also supplies:
 
 - `SQLCipherCursorLoader`, for operations with
 [SQLCipher for Android](http://sqlcipher.net/sqlcipher-for-android/)
-- `SharedPreferencesLoader`, for retrieving the default
-`SharedPreferences` object without tying up the main
-application thread.
 
 This is packaged as an Android library project, though a simple
 JAR [is also available](https://github.com/commonsguy/cwac-loaderex/releases). If you are working on a native Honeycomb
@@ -183,6 +180,10 @@ and the passphrase to use for encryption.
 
 Usage: SharedPreferencesLoader
 ------------------------------
+**WARNING**: `SharedPreferencesLoader` is deprecated. Changes in the implementation
+of the loader framework mean that `SharedPreferencesLoader` can no longer fulfill
+the `Loader` contrat.
+
 `SharedPreferencesLoader` largely mirrors `SQLiteCursorLoader`:
 
 - There are two implementations, one for native API Level 11+
