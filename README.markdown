@@ -1,6 +1,9 @@
 CWAC LoaderEx: Taking Loaders to the Next Level
 ===============================================
 
+**THIS PROJECT IS DISCONTINUED. Use it at your own risk. If you are maintaining a public fork that you would
+like others to consider using, add an issue asking for a link to your fork from this `README`**.
+
 Android 3.0 introduced the `Loader` framework, and the
 Android Compatibility Library allows you to use that
 framework going back to Android 1.6. However, the only
