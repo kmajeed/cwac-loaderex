@@ -18,16 +18,16 @@ package com.commonsware.cwac.loaderex;
 import android.content.Loader;
 import android.os.AsyncTask;
 
-public abstract class ContentChangingTask<T1, T2, T3> extends
-    AsyncTask<T1, T2, T3> {
+public abstract class ContentChangingTask extends
+    AsyncTask<Object, Void, Void> {
   private Loader<?> loader=null;
 
-  ContentChangingTask(Loader<?> loader) {
+  public ContentChangingTask(Loader<?> loader) {
     this.loader=loader;
   }
 
   @Override
-  protected void onPostExecute(T3 param) {
+  protected void onPostExecute(Void param) {
     loader.onContentChanged();
   }
 }

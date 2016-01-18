@@ -16,17 +16,16 @@
 
 package com.commonsware.cwac.loaderex.acl;
 
-import java.io.FileDescriptor;
-import java.io.PrintWriter;
-import java.util.Arrays;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import net.sqlcipher.database.SQLiteDatabase;
 
-public class SQLiteCursorLoader extends AbstractCursorLoader {
-  SQLiteOpenHelper db=null;
+public class SQLCipherCursorLoader extends AbstractCursorLoader {
+  SQLiteDatabase db=null;
   String rawQuery=null;
   String[] args=null;
 
@@ -37,8 +36,8 @@ public class SQLiteCursorLoader extends AbstractCursorLoader {
    * meaning of the parameters. These will be passed as-is
    * to that call.
    */
-  public SQLiteCursorLoader(Context context, SQLiteOpenHelper db,
-                            String rawQuery, String[] args) {
+  public SQLCipherCursorLoader(Context context, SQLiteDatabase db,
+                               String rawQuery, String[] args) {
     super(context);
     this.db=db;
     this.rawQuery=rawQuery;
@@ -51,7 +50,7 @@ public class SQLiteCursorLoader extends AbstractCursorLoader {
    */
   @Override
   protected Cursor buildCursor() {
-    return(db.getReadableDatabase().rawQuery(rawQuery, args));
+    return(db.rawQuery(rawQuery, args));
   }
 
   /**
@@ -95,112 +94,111 @@ public class SQLiteCursorLoader extends AbstractCursorLoader {
     buildExecSQLTask(this).execute(db, sql, bindArgs);
   }
 
-  protected ContentChangingTask buildInsertTask(SQLiteCursorLoader loader) {
+  protected ContentChangingTask buildInsertTask(SQLCipherCursorLoader loader) {
     return(new InsertTask(loader));
   }
 
-  protected ContentChangingTask buildUpdateTask(SQLiteCursorLoader loader) {
+  protected ContentChangingTask buildUpdateTask(SQLCipherCursorLoader loader) {
     return(new UpdateTask(loader));
   }
 
-  protected ContentChangingTask buildReplaceTask(SQLiteCursorLoader loader) {
+  protected ContentChangingTask buildReplaceTask(SQLCipherCursorLoader loader) {
     return(new ReplaceTask(loader));
   }
 
-  protected ContentChangingTask buildDeleteTask(SQLiteCursorLoader loader) {
+  protected ContentChangingTask buildDeleteTask(SQLCipherCursorLoader loader) {
     return(new DeleteTask(loader));
   }
 
-  protected ContentChangingTask buildExecSQLTask(SQLiteCursorLoader loader) {
+  protected ContentChangingTask buildExecSQLTask(SQLCipherCursorLoader loader) {
     return(new ExecSQLTask(loader));
   }
 
   protected static class InsertTask extends ContentChangingTask {
-    InsertTask(SQLiteCursorLoader loader) {
+    InsertTask(SQLCipherCursorLoader loader) {
       super(loader);
     }
 
     @Override
     protected Void doInBackground(Object... params) {
-      SQLiteOpenHelper db=(SQLiteOpenHelper)params[0];
+      SQLiteDatabase db=(SQLiteDatabase)params[0];
       String table=(String)params[1];
       String nullColumnHack=(String)params[2];
       ContentValues values=(ContentValues)params[3];
 
-      db.getWritableDatabase().insert(table, nullColumnHack, values);
+      db.insert(table, nullColumnHack, values);
 
       return(null);
     }
   }
 
   protected static class UpdateTask extends ContentChangingTask {
-    UpdateTask(SQLiteCursorLoader loader) {
+    UpdateTask(SQLCipherCursorLoader loader) {
       super(loader);
     }
 
     @Override
     protected Void doInBackground(Object... params) {
-      SQLiteOpenHelper db=(SQLiteOpenHelper)params[0];
+      SQLiteDatabase db=(SQLiteDatabase)params[0];
       String table=(String)params[1];
       ContentValues values=(ContentValues)params[2];
       String where=(String)params[3];
       String[] whereParams=(String[])params[4];
 
-      db.getWritableDatabase()
-        .update(table, values, where, whereParams);
+      db.update(table, values, where, whereParams);
 
       return(null);
     }
   }
 
   protected static class ReplaceTask extends ContentChangingTask {
-    ReplaceTask(SQLiteCursorLoader loader) {
+    ReplaceTask(SQLCipherCursorLoader loader) {
       super(loader);
     }
 
     @Override
     protected Void doInBackground(Object... params) {
-      SQLiteOpenHelper db=(SQLiteOpenHelper)params[0];
+      SQLiteDatabase db=(SQLiteDatabase)params[0];
       String table=(String)params[1];
       String nullColumnHack=(String)params[2];
       ContentValues values=(ContentValues)params[3];
 
-      db.getWritableDatabase().replace(table, nullColumnHack, values);
+      db.replace(table, nullColumnHack, values);
 
       return(null);
     }
   }
 
   protected static class DeleteTask extends ContentChangingTask {
-    DeleteTask(SQLiteCursorLoader loader) {
+    DeleteTask(SQLCipherCursorLoader loader) {
       super(loader);
     }
 
     @Override
     protected Void doInBackground(Object... params) {
-      SQLiteOpenHelper db=(SQLiteOpenHelper)params[0];
+      SQLiteDatabase db=(SQLiteDatabase)params[0];
       String table=(String)params[1];
       String where=(String)params[2];
       String[] whereParams=(String[])params[3];
 
-      db.getWritableDatabase().delete(table, where, whereParams);
+      db.delete(table, where, whereParams);
 
       return(null);
     }
   }
 
   protected static class ExecSQLTask extends ContentChangingTask {
-    ExecSQLTask(SQLiteCursorLoader loader) {
+    ExecSQLTask(SQLCipherCursorLoader loader) {
       super(loader);
     }
 
     @Override
     protected Void doInBackground(Object... params) {
-      SQLiteOpenHelper db=(SQLiteOpenHelper)params[0];
+      SQLiteDatabase db=(SQLiteDatabase)params[0];
       String sql=(String)params[1];
       Object[] bindParams=(Object[])params[2];
 
-      db.getWritableDatabase().execSQL(sql, bindParams);
+      db.execSQL(sql, bindParams);
 
       return(null);
     }

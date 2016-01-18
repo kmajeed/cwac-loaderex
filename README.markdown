@@ -1,6 +1,9 @@
 CWAC LoaderEx: Taking Loaders to the Next Level
 ===============================================
 
+**THIS PROJECT IS DISCONTINUED. Use it at your own risk. If you are maintaining a public fork that you would
+like others to consider using, add an issue asking for a link to your fork from this `README`**.
+
 Android 3.0 introduced the `Loader` framework, and the
 Android Compatibility Library allows you to use that
 framework going back to Android 1.6. However, the only
@@ -17,17 +20,14 @@ for use with a `SQLiteDatabase` instead of a `ContentProvider`.
 It also supplies some boilerplate `AsyncTasks` to handle
 database inserts and deletes in the background. It also supplies:
 
-- `SharedPreferencesLoader`, for retrieving the default
-`SharedPreferences` object without tying up the main
-application thread.
+- `SQLCipherCursorLoader`, for operations with
+[SQLCipher for Android](http://sqlcipher.net/sqlcipher-for-android/)
 
 This is packaged as an Android library project, though a simple
-JAR is also available from the Downloads section of this
-GitHub repository. If you are working on a native Honeycomb
+JAR [is also available](https://github.com/commonsguy/cwac-loaderex/releases). If you are working on a native Honeycomb
 application (i.e., not using the Android Compatibility
-Library), please use the JAR &mdash; put it in your project's
-`libs/` directory and, if you are using Eclipse, add it to
-your build path.
+Library), please use the JAR &mdash; putting it in your project's
+`libs/` directory should be sufficient.
 
 Usage: SQLiteCursorLoader
 -------------------------
@@ -72,10 +72,10 @@ based upon whether you are using the ACL or not.
 
 ### Database Modifications
 
-If you use the `insert()`, `update()`, `delete()`, and
+If you use the `insert()`, `update()`, `delete()`, `replace()`, and
 `execSQL()` methods on `SQLiteCursorLoader`, the loader
 framework will automatically update you to reflect a new
-`Cursor` with the changed data. These four methods take
+`Cursor` with the changed data. These methods take
 the same parameters as they do on `SQLiteDatabase`.
 
 ### AbstractCursorLoader
@@ -88,6 +88,17 @@ out. You are welcome to make your own subclasses of
 other sources. Just override `buildCursor()` and have it
 return the `Cursor` &mdash; this method is called on a
 background thread and therefore is not time-limited.
+
+### Doing More with the Tasks
+
+You can tailor the work that is done during the
+`insert()`, `update()`, `delete()`, `replace()`, and
+`execSQL()` methods on `SQLiteCursorLoader`. What each of those
+do is delegate to a specific `ContentChangingTask` subclass
+(`InsertTask`, `UpdateTask`, etc.). You can subclass those
+classes, or create your own, and return an instance of them
+from the corresponding `build...()` methods (e.g., `buildInsertTask()`,
+`buildUpdateTask()`).
 
 Usage: SQLite*Task
 ------------------
@@ -131,8 +142,51 @@ effectively will have to be global in scope, such as by
 holding onto it (or its containing `SQLiteOpenHelper`)
 in a static data member.
 
+Usage: SQLCipherCursorLoader
+----------------------------
+This class works nearly identically to `SQLiteCursorLoader`.
+The biggest difference is that it takes a SQLCipher for Android
+version of `SQLiteDatabase` in its constructor, instead of
+a `SQLiteOpenHelper`. The `SQLiteDatabase` will need to be readable or
+writeable depending on what you are doing with it.
+
+As with `SQLiteCursorLoader`, there are two editions of `SQLCipherCursorLoader`,
+one in `com.commonsware.cwac.loaderex` and one in
+`com.commonsware.cwac.loaderex.acl` &mdash; the latter is for use with the
+Android Support package's version of the `Loader` framework.
+
+Apps using `SQLCipherCursorLoader` will need a full copy
+of SQLCipher for Android in their project for the project to 
+run properly.
+
+Usage: SQLCipherUtils
+---------------------
+There is a `SQLCipherUtils` class in `com.commonsware.cwac.loaderex` with
+a couple of static methods that may be useful to those implementing SQLCipher
+for Android in their projects.
+
+`getDatabaseState()` will return a `SQLCipherUtils.State` enum indicating
+what the state of the database is:
+
+- `DOES_NOT_EXIST`, meaning that we cannot find a database file
+- `UNENCRYPTED`, meaning that we have found a database file and believe
+that it is unencrypted
+- `ENCRYPTED`, meaning that we have found a database file and believe
+that it is encrypted, and
+- `UNKNOWN`, meaning that we do not know what is going on with the database
+
+`getDatabaseState()` takes a `Context` and the name of the database as parameters.
+
+`encrypt()` will replace an unencrypted database
+with an encrypted version, given the supplied `Context`, the name of the database,
+and the passphrase to use for encryption.
+
 Usage: SharedPreferencesLoader
 ------------------------------
+**WARNING**: `SharedPreferencesLoader` is deprecated. Changes in the implementation
+of the loader framework mean that `SharedPreferencesLoader` can no longer fulfill
+the `Loader` contract.
+
 `SharedPreferencesLoader` largely mirrors `SQLiteCursorLoader`:
 
 - There are two implementations, one for native API Level 11+
@@ -163,10 +217,14 @@ library project, you will need the Android Support package.
 If you are using the JAR, you only need the Android Support
 package if you are using the `.acl` editions of the classes. 
 
+This project should work on API Level 7 and higher, except for any portions that
+may be noted otherwise in this document. Please report bugs if you find features
+that do not work on API Level 7 and are not noted as requiring a higher version.
+
 Version
 -------
-This is version v0.5.0 of this module, meaning that it is
-slowly becoming more respectable.
+This is version v0.7.3 of this module, meaning that its author
+really should consider formalizing v1.0.0 before too long...
 
 Demo
 ----
@@ -183,10 +241,8 @@ compiled classes for the actual library are put into the JAR.
 
 Future
 ------
-Future editions of this project will add things like:
-
- - Support for `query()` in addition to `rawQuery()`-style queries
- - Support for synchronization on the `SQLiteDatabase`
+Future editions of this project will add things like
+support for `query()` in addition to `rawQuery()`-style queries
 
 License
 -------
@@ -196,18 +252,15 @@ file.
 
 Questions
 ---------
-If you have questions regarding the use of this code, please post a question
-on [StackOverflow](http://stackoverflow.com/questions/ask) tagged with `commonsware` and `android`. Be sure to indicate
-what CWAC module you are having issues with, and be sure to include source code 
-and stack traces if you are encountering crashes.
-
-If you have encountered what is clearly a bug, please post an [issue](https://github.com/commonsguy/cwac-loaderex/issues). Be certain to include complete steps
-for reproducing the issue.
-
-Do not ask for help via Twitter.
+**THIS PROJECT IS DISCONTINUED**
 
 Release Notes
 -------------
+- v0.7.3: added hooks for extending asynchronous functionality, updated to SQLCipher 3.0.0
+- v0.7.2: updated for SQLCipher 2.2.1
+- v0.7.1: bug fix
+- v0.7.0: added SQLCipher for Android support
+- v0.6.0: added `replace()` (by request)
 - v0.5.0: switched to taking a `SQLiteOpenHelper` instead of a `SQLiteDatabase`
 - v0.4.0: added `insert()`, `update()`, `delete()`, and `execSQL()`; better on-change support
 - v0.3.0: added `SharedPreferencesLoader`
